@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Main module for the CTS cli app."""
+"""Module for all departure time functions related."""
 from datetime import datetime
 
 import click

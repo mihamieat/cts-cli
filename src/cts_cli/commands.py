@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Main module for the CTS cli app."""
+"""Module for gathering all commands."""
 import click
 from decouple import Config, config
 
-from src.cts_cli.cli.departure_time import departure_time
+from cts_cli.cli.departure_time import departure_time
 
 file_config = Config(".env.dev")
 API_URL = config("API_URL", default="https://api.cts-strasbourg.eu")

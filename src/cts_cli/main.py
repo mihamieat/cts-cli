@@ -2,6 +2,6 @@
 """Main module for the CTS cli app."""
 
 
-from src.cts_cli.commands import cli
+from cts_cli.commands import cli
 
 cli(obj={})  # pylint: disable=E1120
