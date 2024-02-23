@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "cts_cli", from = "src"}]
 
 [tool.poetry.scripts]
-cts-cli = "src.cts_cli.main:cli"
+cts-cli = "cts_cli.main:cli"
 
 [tool.poetry.dependencies]
 python = "^3.10"
