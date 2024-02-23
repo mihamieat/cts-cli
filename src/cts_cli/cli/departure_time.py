@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Main module for the CTS cli app."""
+"""Module for the departure time command."""
 import click
-from src.cts_cli.api.departure_time import departure_time_call
+from cts_cli.api.departure_time import departure_time_call
 
 
 @click.command()
