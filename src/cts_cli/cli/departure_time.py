@@ -3,6 +3,7 @@
 import click
 from cts_cli.api.departure_time import departure_time_call
 from cts_cli.display.departure_time import display_departure_time
+from cts_cli.display.datesandtimes import today_date
 
 
 @click.command()
@@ -15,6 +16,8 @@ def departure_time(ctx):
     try:
         dep_time = departure_time_call(ctx, station=station)
         table = display_departure_time(departure_time=dep_time)
-        click.echo(f"Departure at station: \033[34m{station}\033[0m\n{table}")
+        click.echo(
+            f"Departure at station: \033[34m{station}\033[0m {today_date()}\n{table}"
+        )
     except IndexError as e:
         click.echo(f"Could not find data for {station}, check spelling: {e}")
