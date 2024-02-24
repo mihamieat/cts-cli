@@ -2,6 +2,7 @@
 """Module for all departure time functions related."""
 from datetime import datetime, timezone
 import math
+from icecream import ic
 
 import click
 import requests
@@ -32,37 +33,46 @@ def departure_time_call(ctx, station: str) -> str:
         auth=(ctx.obj.get("token"), ctx.obj.get("password")),
         timeout=TIMEOUT,
     )
-    station_ref = get_station_ref(et_response.json(), station)
+    station_refs = get_station_ref(et_response.json(), station)
+    ic(station_refs)
 
-    sm_url = (
+    sm_urls = [
         f"{ctx.obj.get('url')}{STOP_MONITORING_ENDPOINT}?MonitoringRef={station_ref}"
+        for station_ref in station_refs
+    ]
+
+    responses_json = list(
+        map(
+            lambda url: requests.get(
+                url=url,
+                auth=(ctx.obj.get("token"), ctx.obj.get("password")),
+                timeout=TIMEOUT,
+            ).json(),
+            sm_urls,
+        )
     )
-    sm_response = requests.get(
-        url=sm_url,
-        auth=(ctx.obj.get("token"), ctx.obj.get("password")),
-        timeout=TIMEOUT,
-    )
-    return get_station_departures(sm_response.json())
+    return get_station_departures(responses_json)
 
 
-def get_station_ref(json_response: dict, station_name: str) -> str:
+def get_station_ref(json_response: dict, station_name: str) -> list:
     """
-    Get the reference ID of a station from the JSON response.
+    Get the reference IDs of a station from the JSON response.
 
     Args:
         json_response (dict): The JSON response containing the station information.
         station_name (str): The name of the station.
 
     Returns:
-        str: The reference ID of the station.
+        list: A list of reference IDs of the station.
 
     Raises:
         KeyError: If no estimated journey version frame is found in the JSON response.
 
     Examples:
-        >>> json_response = {"ServiceDelivery": {"EstimatedTimetableDeli...}]}}
+        >>> json_response = {"ServiceDelivery": {"EstimatedTimetableDelivery": \
+[{"EstimatedJourneyVersionFrame": ...}]}}
         >>> get_station_ref(json_response, "StationA")
-        '12345'
+        ['12345', '67890']
     """
     try:
         estimated_journey_version_frame = json_response["ServiceDelivery"][
@@ -70,6 +80,7 @@ def get_station_ref(json_response: dict, station_name: str) -> str:
         ][0]["EstimatedJourneyVersionFrame"][1:]
     except KeyError as e:
         click.echo(f"Error. No estimated journey version frame found: {str(e)}")
+    station_refs = []
     for estimated_journey in estimated_journey_version_frame:
         for journey in estimated_journey["EstimatedVehicleJourney"]:
             line_station = [
@@ -78,39 +89,43 @@ def get_station_ref(json_response: dict, station_name: str) -> str:
                 if station["StopPointName"].lower() == station_name.lower()
             ]
         if line_station:
-            break
-    return line_station[0]["StopPointRef"]
+            station_refs.append(line_station[0]["StopPointRef"])
+    return list(filter(None, station_refs))
 
 
-def get_station_departures(json_response: dict) -> list:
+def get_station_departures(json_responses: list[dict]) -> list:
     """
-    Get the list of departures for a station from the JSON response.
+    Get the list of station departures from multiple JSON responses.
 
     Args:
-        json_response (dict): The JSON response containing the station departures.
+        json_responses (list[dict]): A list of JSON responses containing the station departures.
 
     Returns:
-        list: A list of dictionaries representing the departures, \
-each containing the monitoring reference,
-        line, destination, and station information.
+        list: A list of lists representing the station departures, each containing the line, \
+destination,
+        expected departure time, and remaining minutes.
 
     Examples:
-        >>> json_response = {"ServiceDelivery": {"StopMonitoringDelivery": \
-[{"MonitoredStopVisit": ...}]}}
-        >>> get_station_departures(json_response)
+        >>> json_responses = [
+        ...     {"ServiceDelivery": {"StopMonitoringDelivery": [{"MonitoredStopVisit": ...}]}},
+        ...     ...
+        ... ]
+        >>> get_station_departures(json_responses)
         [
-            {
-                "monitoring_ref": "12345",
-                "line": "LineA",
-                "destination": "DestinationA",
-                "station": "StationA"
-            },
+            ["LineA", "DestinationA", "10:30 AM", "5 min"],
             ...
         ]
     """
-    monitored_stop_visits = json_response["ServiceDelivery"]["StopMonitoringDelivery"][
-        0
-    ]["MonitoredStopVisit"]
+    monitored_stop_visits = [
+        monitored_stop_visit["ServiceDelivery"]["StopMonitoringDelivery"][0][
+            "MonitoredStopVisit"
+        ]
+        for monitored_stop_visit in json_responses
+        if monitored_stop_visit["ServiceDelivery"]["StopMonitoringDelivery"][0].get(
+            "MonitoredStopVisit"
+        )
+    ]
+    merged_stop_visits = [item for sublist in monitored_stop_visits for item in sublist]
     return [
         [
             stop["MonitoredVehicleJourney"]["LineRef"],
@@ -122,7 +137,7 @@ each containing the monitoring reference,
                 ]
             ),
         ]
-        for stop in monitored_stop_visits
+        for stop in merged_stop_visits
     ]
 
 
@@ -146,5 +161,5 @@ def get_remaining_minutes(given_datetime_str: str) -> str:
     return (
         f"{math.ceil(time_difference)} min"
         if time_difference > 1
-        else "\033[32mClose\033[0m"
+        else "\033[32mArriving\033[0m"
     )
