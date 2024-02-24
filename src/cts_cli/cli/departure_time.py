@@ -15,6 +15,6 @@ def departure_time(ctx):
     try:
         dep_time = departure_time_call(ctx, station=station)
         table = display_departure_time(departure_time=dep_time)
-        click.echo(f"Departure at station: \033[1m{station}\033[0m\n{table}")
+        click.echo(f"Departure at station: \033[34m{station}\033[0m\n{table}")
     except IndexError as e:
         click.echo(f"Could not find data for {station}, check spelling: {e}")
