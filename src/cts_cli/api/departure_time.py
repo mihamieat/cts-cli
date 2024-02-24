@@ -2,7 +2,6 @@
 """Module for all departure time functions related."""
 from datetime import datetime, timezone
 import math
-from icecream import ic
 
 import click
 import requests
@@ -34,7 +33,6 @@ def departure_time_call(ctx, station: str) -> str:
         timeout=TIMEOUT,
     )
     station_refs = get_station_ref(et_response.json(), station)
-    ic(station_refs)
 
     sm_urls = [
         f"{ctx.obj.get('url')}{STOP_MONITORING_ENDPOINT}?MonitoringRef={station_ref}"
@@ -126,7 +124,7 @@ destination,
         )
     ]
     merged_stop_visits = [item for sublist in monitored_stop_visits for item in sublist]
-    return [
+    schedules = [
         [
             stop["MonitoredVehicleJourney"]["LineRef"],
             stop["MonitoredVehicleJourney"]["DestinationName"],
@@ -139,6 +137,16 @@ destination,
         ]
         for stop in merged_stop_visits
     ]
+
+    # delete duplicates
+    schedules = [list(x) for x in {tuple(sublist) for sublist in schedules}]
+
+    # add min prefix to minutes integers and get the 15 first lines
+    schedules = sorted(schedules, key=lambda x: x[3])[:15]
+    for schedule in schedules:
+        schedule[3] = format_minutes(schedule[3])
+
+    return schedules
 
 
 def get_remaining_minutes(given_datetime_str: str) -> str:
@@ -153,13 +161,16 @@ def get_remaining_minutes(given_datetime_str: str) -> str:
 
     Examples:
         >>> get_remaining_minutes("2022-01-01T12:00:00")
-        '123 min'
+        '13 min'
     """
     given_datetime = datetime.fromisoformat(given_datetime_str)
     current_datetime = datetime.now(timezone.utc)
     time_difference = (given_datetime - current_datetime).total_seconds() / 60
-    return (
-        f"{math.ceil(time_difference)} min"
-        if time_difference > 1
-        else "\033[32mArriving\033[0m"
-    )
+    return math.ceil(time_difference)
+
+
+def format_minutes(minutes: int):
+    """
+    Format the number of minutes into a human-readable string.
+    """
+    return f"{math.ceil(minutes)} min" if minutes > 1 else "\033[32mArriving\033[0m"
