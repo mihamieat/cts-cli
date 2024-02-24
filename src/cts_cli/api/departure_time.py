@@ -143,4 +143,8 @@ def get_remaining_minutes(given_datetime_str: str) -> str:
     given_datetime = datetime.fromisoformat(given_datetime_str)
     current_datetime = datetime.now(timezone.utc)
     time_difference = (given_datetime - current_datetime).total_seconds() / 60
-    return f"{math.ceil(time_difference)} min" if time_difference > 1 else "Close"
+    return (
+        f"{math.ceil(time_difference)} min"
+        if time_difference > 1
+        else "\033[32mClose\033[0m"
+    )
