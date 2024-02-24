@@ -128,7 +128,11 @@ destination,
         [
             stop["MonitoredVehicleJourney"]["LineRef"],
             stop["MonitoredVehicleJourney"]["DestinationName"],
-            stop["MonitoredVehicleJourney"]["MonitoredCall"]["ExpectedDepartureTime"],
+            get_time_only(
+                stop["MonitoredVehicleJourney"]["MonitoredCall"][
+                    "ExpectedDepartureTime"
+                ]
+            ),
             get_remaining_minutes(
                 stop["MonitoredVehicleJourney"]["MonitoredCall"][
                     "ExpectedDepartureTime"
@@ -147,6 +151,14 @@ destination,
         schedule[3] = format_minutes(schedule[3])
 
     return schedules
+
+
+def get_time_only(date_str: str) -> str:
+    """
+    Get the time component from a date string.
+    """
+    datetime_obj = datetime.fromisoformat(date_str)
+    return datetime_obj.time()
 
 
 def get_remaining_minutes(given_datetime_str: str) -> str:
