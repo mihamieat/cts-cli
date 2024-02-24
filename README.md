@@ -3,6 +3,9 @@ This Python command-line interface application provides a convenient way to inte
 
 ## Features
 - Get departure time
+## Requirements ✅
+- Python 3.10.12
+- You are required to have the token and password provided by CTS opendata. see https://www.cts-strasbourg.eu/fr/portail-open-data/
 ## Installation ⚙️
 ```sh
 pip install git+https://github.com/mihamieat/cts-cli
