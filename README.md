@@ -29,8 +29,8 @@ Commands:
   departure-time  Get the estimated departure time for a specific line,...
 ```
 ### Departure Time
-This command allows you to get the estimated departure time from a specific station of a line that goes towards the line destination.
-You will interctively specify the line, the line direction, and the station.
+This command allows you to get the estimated departure time from a specific station.
+You will interctively specify the station.
 ```sh
 cts-cli departure-time
 Usage: cts-cli departure-time [OPTIONS]
@@ -40,6 +40,19 @@ Usage: cts-cli departure-time [OPTIONS]
 
 Options:
   --help  Show this message and exit.
+```
+#### Example Usage
+```sh
+cts-cli departure-time
+Enter station name: parc des sports
+Departure at station: parc des sports
++------+-----------------------+---------------------------+--------------+
+| Line |      Destination      |       Departure Time      | Departure in |
++------+-----------------------+---------------------------+--------------+
+|  70  | Robertsau Renaissance | 2024-02-24T17:09:32+01:00 |    10 min    |
+|  70  | Robertsau Renaissance | 2024-02-24T17:30:04+01:00 |    30 min    |
+|  70  | Robertsau Renaissance | 2024-02-24T17:51:04+01:00 |    51 min    |
++------+-----------------------+---------------------------+--------------+
 ```
 ## Contribute 👩🏻‍🔬
 ### Clone the project
