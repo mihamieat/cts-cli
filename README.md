@@ -47,15 +47,16 @@ Options:
 #### Example Usage
 ```sh
 cts-cli departure-time
-Enter station name: parc des sports
-Departure at station: parc des sports
-+------+-----------------------+---------------------------+--------------+
-| Line |      Destination      |       Departure Time      | Departure in |
-+------+-----------------------+---------------------------+--------------+
-|  70  | Robertsau Renaissance | 2024-02-24T17:09:32+01:00 |    10 min    |
-|  70  | Robertsau Renaissance | 2024-02-24T17:30:04+01:00 |    30 min    |
-|  70  | Robertsau Renaissance | 2024-02-24T17:51:04+01:00 |    51 min    |
-+------+-----------------------+---------------------------+--------------+
+Enter station name: emile mathis
+Departure at station: emile mathis Sat. 24 Feb 19:37
++------+----------------------+----------------+--------------+
+| Line |     Destination      | Departure Time | Departure in |
++------+----------------------+----------------+--------------+
+|  A   |    Graffenstaden     |    19:38:38    |   Arriving   |
+|  A   |   Parc des Sports    |    19:39:43    |    2 min     |
+|  E   | Robertsau - L'Escale |    19:40:36    |    3 min     |
+|  E   |  Campus d'Illkirch   |    19:44:32    |    7 min     |
++------+----------------------+----------------+--------------+
 ```
 ## Contribute 👩🏻‍🔬
 ### Clone the project
