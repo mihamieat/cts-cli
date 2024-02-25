@@ -3,6 +3,9 @@ This Python command-line interface application provides a convenient way to inte
 
 ## Features
 - Get departure time
+## Requirements ✅
+- Python 3.10.12
+- You are required to have the token and password provided by CTS opendata. see https://www.cts-strasbourg.eu/fr/portail-open-data/
 ## Installation ⚙️
 ```sh
 pip install git+https://github.com/mihamieat/cts-cli
@@ -29,8 +32,8 @@ Commands:
   departure-time  Get the estimated departure time for a specific line,...
 ```
 ### Departure Time
-This command allows you to get the estimated departure time from a specific station of a line that goes towards the line destination.
-You will interctively specify the line, the line direction, and the station.
+This command allows you to get the estimated departure time from a specific station.
+You will interctively specify the station.
 ```sh
 cts-cli departure-time
 Usage: cts-cli departure-time [OPTIONS]
@@ -40,6 +43,20 @@ Usage: cts-cli departure-time [OPTIONS]
 
 Options:
   --help  Show this message and exit.
+```
+#### Example Usage
+```sh
+cts-cli departure-time
+Enter station name: emile mathis
+Departure at station: emile mathis Sat. 24 Feb 19:37
++------+----------------------+----------------+--------------+
+| Line |     Destination      | Departure Time | Departure in |
++------+----------------------+----------------+--------------+
+|  A   |    Graffenstaden     |    19:38:38    |   Arriving   |
+|  A   |   Parc des Sports    |    19:39:43    |    2 min     |
+|  E   | Robertsau - L'Escale |    19:40:36    |    3 min     |
+|  E   |  Campus d'Illkirch   |    19:44:32    |    7 min     |
++------+----------------------+----------------+--------------+
 ```
 ## Contribute 👩🏻‍🔬
 ### Clone the project
