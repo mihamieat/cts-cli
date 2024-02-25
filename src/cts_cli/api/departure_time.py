@@ -3,7 +3,6 @@
 from datetime import datetime, timezone
 import math
 
-import click
 import requests
 
 ESTIMATED_TIMETABLE_ENDPOINT = "/estimated-timetable"
@@ -72,23 +71,16 @@ def get_station_ref(json_response: dict, station_name: str) -> list:
         >>> get_station_ref(json_response, "StationA")
         ['12345', '67890']
     """
-    try:
-        estimated_journey_version_frame = json_response["ServiceDelivery"][
-            "EstimatedTimetableDelivery"
-        ][0]["EstimatedJourneyVersionFrame"][1:]
-    except KeyError as e:
-        click.echo(f"Error. No estimated journey version frame found: {str(e)}")
-    station_refs = []
-    for estimated_journey in estimated_journey_version_frame:
-        for journey in estimated_journey["EstimatedVehicleJourney"]:
-            line_station = [
-                station
-                for station in journey["EstimatedCalls"]
-                if station["StopPointName"].lower() == station_name.lower()
-            ]
-        if line_station:
-            station_refs.append(line_station[0]["StopPointRef"])
-    return list(filter(None, station_refs))
+    station_name_cf = station_name.casefold()
+    return [
+        call["StopPointRef"]
+        for ejv in json_response["ServiceDelivery"]["EstimatedTimetableDelivery"][0][
+            "EstimatedJourneyVersionFrame"
+        ][1:]
+        for ej in ejv["EstimatedVehicleJourney"]
+        for call in ej["EstimatedCalls"]
+        if call["StopPointName"].casefold() == station_name_cf
+    ]
 
 
 def get_station_departures(json_responses: list[dict]) -> list:
@@ -158,7 +150,7 @@ def get_time_only(date_str: str) -> str:
     Get the time component from a date string.
     """
     datetime_obj = datetime.fromisoformat(date_str)
-    return datetime_obj.time()
+    return datetime_obj.time().strftime("%H:%M:%S")
 
 
 def get_remaining_minutes(given_datetime_str: str) -> str:
@@ -175,8 +167,13 @@ def get_remaining_minutes(given_datetime_str: str) -> str:
         >>> get_remaining_minutes("2022-01-01T12:00:00")
         '13 min'
     """
-    given_datetime = datetime.fromisoformat(given_datetime_str)
+    # Convert the given datetime string to a timezone-aware datetime object
+    given_datetime = datetime.fromisoformat(given_datetime_str).astimezone(timezone.utc)
+
+    # Get the current datetime (timezone-aware)
     current_datetime = datetime.now(timezone.utc)
+
+    # Calculate the time difference in minutes
     time_difference = (given_datetime - current_datetime).total_seconds() / 60
     return math.ceil(time_difference)
 
