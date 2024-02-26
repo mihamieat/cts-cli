@@ -17,6 +17,7 @@ python-decouple = "^3.8"
 datetime = "^5.4"
 pylint = "^3.0.4"
 prettytable = "^3.10.0"
+prompt-toolkit = "^3.0.43"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.2.0"

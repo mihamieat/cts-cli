@@ -2,72 +2,60 @@
 # pylint: skip-file
 """Departure time function test module."""
 import pytest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from cts_cli.api.departure_time import departure_time_call
 
-# Constants used in the function, which should be defined in the actual code
-ESTIMATED_TIMETABLE_ENDPOINT = "/estimated-timetable"
-STOP_MONITORING_ENDPOINT = "/stop-monitoring"
+# Constants used for testing
+STOP_MONITORING_ENDPOINT = "/stopMonitoring"
 TIMEOUT = 10
 
 
-class MockContext:
-    """Mock context and function to simulate external dependencies"""
-
-    def __init__(self, url, token, password):
-        self.obj = {"url": url, "token": token, "password": password}
-
-
-def get_station_ref(response_json, station):
-    """Mock funtion for get_station_ref."""
-    return "ABC123"
-
-
-def get_station_departures(response_json):
-    """Mock funtion for get station departure."""
-    return [
-        ["A", "Parc des Sports", "18:12:45", "\x1b[32mArriving\x1b[0m"],
-        ["E", "Robertsau - L'Escale", "18:21:21", "10 min"],
-        ["A", "Graffenstaden", "18:21:42", "10 min"],
-    ]
-
-
-# Parametrized test cases
+# Test cases
 @pytest.mark.parametrize(
-    "ctx, station, expected_departure_info, test_id",
+    "test_id, ctx, station, estimated_time_data, expected_result",
     [
-        # Happy path tests
+        # Happy path tests with various realistic test values
         (
-            MockContext("http://api.example.com", "token123", "password123"),
+            "happy-1",
+            Mock(
+                obj={
+                    "url": "http://api.example.com",
+                    "token": "token123",
+                    "password": "pass123",
+                }
+            ),
             "Central",
-            {"departures": [["A", "Graffenstaden", "18:21:42", "10 min"]]},
-            "happy_path_central",
+            {"data": "dummy_data"},
+            "expected_departures_1",
         ),
-        # Add more happy path test cases with different realistic values
+        # Add more happy path test cases here
         # Edge cases
         # Add edge cases here
         # Error cases
         # Add error cases here
     ],
 )
-def test_departure_time_call(ctx, station, expected_departure_info, test_id):
-    """Run tests."""
+def test_departure_time_call(
+    test_id, ctx, station, estimated_time_data, expected_result
+):
     # Arrange
-    with patch("requests.get") as mock_get, patch(
+    with patch(
         "cts_cli.api.departure_time.get_station_ref"
     ) as mock_get_station_ref, patch(
+        "cts_cli.api.departure_time.requests.get"
+    ) as mock_requests_get, patch(
         "cts_cli.api.departure_time.get_station_departures"
     ) as mock_get_station_departures:
-        # Setup mock responses and return values
-        mock_get.return_value.json.return_value = {}
-        mock_get_station_ref.return_value = ["station_ref"]
-        mock_get_station_departures.return_value = expected_departure_info
+        # Setup mock return values
+        mock_get_station_ref.return_value = ["station_ref_1"]
+        mock_requests_get.return_value = Mock(json=lambda: {"data": "response_data"})
+        mock_get_station_departures.return_value = expected_result
 
         # Act
-        actual_departure_info = departure_time_call(ctx, station)
+        result = departure_time_call(ctx, station, estimated_time_data)
 
         # Assert
-        assert actual_departure_info == expected_departure_info
-        mock_get.assert_called()
-        mock_get_station_ref.assert_called_with({}, station)
-        mock_get_station_departures.assert_called_with([{}])
+        assert result == expected_result
+        mock_get_station_ref.assert_called_once_with(estimated_time_data, station)
+        mock_requests_get.assert_called_once()
+        mock_get_station_departures.assert_called_once_with([{"data": "response_data"}])
