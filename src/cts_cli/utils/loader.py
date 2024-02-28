@@ -6,6 +6,8 @@ from itertools import cycle
 from time import sleep
 from os import get_terminal_size
 
+import click
+
 
 class Loader:
     """
@@ -75,7 +77,7 @@ class Loader:
         for c in cycle(self.steps):
             if self.done:
                 break
-            print(f"\r{self.desc} {c}", flush=True, end="")
+            click.echo(f"\r{self.desc} {c}", nl=False)
             sleep(self.timeout)
 
     def stop(self):
@@ -86,9 +88,10 @@ class Loader:
             None
         """
         if sys.stdout.isatty():  # Check if running in a terminal
-            cols = get_terminal_size((80, 20)).columns
-            print("\r" + " " * cols, end="", flush=True)
-            print(f"\r{self.end}", flush=True)
+            self.done = True
+            cols = get_terminal_size().columns
+            click.echo("\r" + " " * cols, nl=False)
+            click.echo(f"\r{self.end}", nl=False)
 
     def __call__(self, func):
         """
