@@ -14,7 +14,7 @@ def departure_time(ctx):
     Get the estimated departure times for every lines that stops at a given station.
     """
     estimated_time_data = get_estimated_time_raw_data(ctx)
-    station = suggester("Enter station name: ")
+    station = suggester("Enter station name: ", estimated_time_data)
     try:
         dep_time = departure_time_call(
             ctx, station=station, estimated_time_data=estimated_time_data.json()

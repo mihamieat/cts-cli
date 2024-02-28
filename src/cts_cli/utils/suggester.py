@@ -2,30 +2,24 @@
 """Suggestion mechanism module."""
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
-from icecream import ic
 
 
-def suggester(prompt_txt: str):
+def suggester(prompt_txt: str, response_json: dict):
     """Provide input suggestions or autocomplete functionality."""
-    suggestions = ["Emile Mathis", "Parc des Sports"]
-    completer = WordCompleter(suggestions)
+    suggestions = collect_sation_names(response_json)
+    completer = WordCompleter(suggestions, ignore_case=True)
     return prompt(prompt_txt, completer=completer)
 
 
-def collect_values_from_key(dictionary, key):
-    """Recursively collect values from a key in a dictionary."""
-    values = []
-
-    def _collect_values(dictionary) -> list:
-        if isinstance(dictionary, dict):
-            if key in dictionary:
-                values.append(dictionary[key])
-            for value in dictionary.values():
-                _collect_values(value)
-        elif isinstance(dictionary, list):
-            for item in dictionary:
-                _collect_values(item)
-
-    _collect_values(dictionary)
-    ic(values)
-    return list(set(values))
+def collect_sation_names(respons_json: dict) -> list:
+    """Recursively collect Stop point names for responses."""
+    stop_point_names = []
+    for timetable in respons_json.json()["ServiceDelivery"][
+        "EstimatedTimetableDelivery"
+    ]:
+        for frame in timetable["EstimatedJourneyVersionFrame"]:
+            for journey in frame["EstimatedVehicleJourney"]:
+                stop_point_names.extend(
+                    call["StopPointName"] for call in journey["EstimatedCalls"]
+                )
+    return list(set(stop_point_names))
