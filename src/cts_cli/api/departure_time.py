@@ -5,11 +5,14 @@ import math
 
 import requests
 
+from cts_cli.utils.loader import Loader
+
 ESTIMATED_TIMETABLE_ENDPOINT = "/estimated-timetable"
 STOP_MONITORING_ENDPOINT = "/stop-monitoring"
 TIMEOUT = 10
 
 
+@Loader(desc="Collecting estimated timetable data.")
 def get_estimated_time_raw_data(ctx) -> dict:
     """
     Retrieves the estimated time raw data from the API.
@@ -36,6 +39,7 @@ def get_estimated_time_raw_data(ctx) -> dict:
     )
 
 
+@Loader(desc="Collecting departure times data. 🚋 🚌")
 def departure_time_call(ctx, station: str, estimated_time_data: dict) -> str:
     """
     Get the departure time for a specific line, station, and destination.
