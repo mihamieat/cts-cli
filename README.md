@@ -78,6 +78,7 @@ poetry run cts-cli [OPTIONS] COMMAND [ARGS]...
 See https://pre-commit.com
 ```sh
 pipx install pre-commit
+pre-commit install
 ```
 
 ## License 📄

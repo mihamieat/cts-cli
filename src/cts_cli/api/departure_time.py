@@ -5,12 +5,42 @@ import math
 
 import requests
 
+from cts_cli.utils.loader import Loader
+
 ESTIMATED_TIMETABLE_ENDPOINT = "/estimated-timetable"
 STOP_MONITORING_ENDPOINT = "/stop-monitoring"
 TIMEOUT = 10
 
 
-def departure_time_call(ctx, station: str) -> str:
+@Loader(desc="Collecting estimated timetable data.")
+def get_estimated_time_raw_data(ctx) -> dict:
+    """
+    Retrieves the estimated time raw data from the API.
+
+    Args:
+        ctx: The context object.
+
+    Returns:
+        dict: The raw data of the estimated time.
+
+    Raises:
+        None.
+
+    Examples:
+        >>> ctx = Context()
+        >>> get_estimated_time_raw_data(ctx)
+        {'key': 'value'}
+    """
+    et_url = f"{ctx.obj.get('url')}{ESTIMATED_TIMETABLE_ENDPOINT}"
+    return requests.get(
+        url=et_url,
+        auth=(ctx.obj.get("token"), ctx.obj.get("password")),
+        timeout=TIMEOUT,
+    )
+
+
+@Loader(desc="Collecting departure times data. 🚋 🚌")
+def departure_time_call(ctx, station: str, estimated_time_data: dict) -> str:
     """
     Get the departure time for a specific line, station, and destination.
 
@@ -25,13 +55,8 @@ def departure_time_call(ctx, station: str) -> str:
     Returns:
         dict: The departure information for the specified line, station, and destination.
     """
-    et_url = f"{ctx.obj.get('url')}{ESTIMATED_TIMETABLE_ENDPOINT}"
-    et_response = requests.get(
-        url=et_url,
-        auth=(ctx.obj.get("token"), ctx.obj.get("password")),
-        timeout=TIMEOUT,
-    )
-    station_refs = get_station_ref(et_response.json(), station)
+    et_response = estimated_time_data
+    station_refs = get_station_ref(et_response, station)
 
     sm_urls = [
         f"{ctx.obj.get('url')}{STOP_MONITORING_ENDPOINT}?MonitoringRef={station_ref}"

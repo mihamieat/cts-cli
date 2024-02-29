@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """Module for the departure time command."""
 import click
-from cts_cli.api.departure_time import departure_time_call
+from cts_cli.api.departure_time import departure_time_call, get_estimated_time_raw_data
 from cts_cli.display.departure_time import display_departure_time
 from cts_cli.display.datesandtimes import today_date
+from cts_cli.utils.suggester import suggester
 
 
 @click.command()
@@ -12,9 +13,12 @@ def departure_time(ctx):
     """
     Get the estimated departure times for every lines that stops at a given station.
     """
-    station = click.prompt("Enter station name")
+    estimated_time_data = get_estimated_time_raw_data(ctx)
+    station = suggester("Enter station name: ", estimated_time_data)
     try:
-        dep_time = departure_time_call(ctx, station=station)
+        dep_time = departure_time_call(
+            ctx, station=station, estimated_time_data=estimated_time_data.json()
+        )
         table = display_departure_time(departure_time=dep_time)
         click.echo(
             f"Departure at station: \033[34m{station}\033[0m {today_date()}\n{table}"
