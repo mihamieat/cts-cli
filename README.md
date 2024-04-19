@@ -1,17 +1,17 @@
 # CTS Comand Line Interface App
-This Python command-line interface application provides a convenient way to interact with the API of the Strasbourg's CTS transport company. It allows users to access various information related to public transportation services in Strasbourg, including real-time data on routes, schedules, stops, and more.
+This Python command-line interface application provides a convenient way to interact with the API of Strasbourg's CTS transport company. It allows users to access various information related to public transportation services in Strasbourg, including real-time data on routes, schedules, stops, and more.
 
 ## Features
 - Get departure time
 ## Requirements ✅
 - Python 3.10.12
-- You are required to have the token and password provided by CTS opendata. see https://www.cts-strasbourg.eu/fr/portail-open-data/
+- You are required to have the token and password provided by CTS Opendata. see https://www.cts-strasbourg.eu/fr/portail-open-data/
 ## Installation ⚙️
 ```sh
 pip install git+https://github.com/mihamieat/cts-cli
 ```
 ## Set the environment variables 🔧
-Following variables are mandatory. They could be set in a .env file.
+The fFollowing variables are mandatory. They could be set in a .env file.
 | Variable  | Purpose  | Default value |
 |---|---|---|
 | API_URL  | URL of the API  | https://api.cts-strasbourg.eu |
@@ -33,7 +33,7 @@ Commands:
 ```
 ### Departure Time
 This command allows you to get the estimated departure time from a specific station.
-You will interctively specify the station.
+You will interactively specify the station.
 ```sh
 cts-cli departure-time
 Usage: cts-cli departure-time [OPTIONS]
@@ -63,7 +63,7 @@ Departure at station: emile mathis Sat. 24 Feb 19:37
 ```sh
 git clone https://github.com/mihamieat/cts-cli
 ```
-### Intstall development tools
+### Install development tools
 #### Poetry
 See https://python-poetry.org/docs/
 ```sh
