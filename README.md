@@ -64,10 +64,20 @@ Departure at station: emile mathis Sat. 24 Feb 19:37
 git clone https://github.com/mihamieat/cts-cli
 ```
 ### Install development tools
+You could directly install the development tools with the contribute.sh script
+Make sure that the script has user execution permission set.
+```sh
+chmod u+x ./contribute.sh
+```
+Then run the script to install.
+```sh
+./contribute.sh
+```
+### Development tools manual install
 #### Poetry
 See https://python-poetry.org/docs/
 ```sh
-pipx install poetry==1.2.0
+pipx install poetry
 poetry install
 ```
 To test changes, run:
